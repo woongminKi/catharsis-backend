@@ -6,6 +6,8 @@ import imageRoutes from './routes/imageRoutes';
 import consultationRoutes from './routes/consultationRoutes';
 import authRoutes from './routes/authRoutes';
 import adminConsultationRoutes from './routes/adminConsultationRoutes';
+import passerRoutes from './routes/passerRoutes';
+import adminPasserRoutes from './routes/adminPasserRoutes';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -31,6 +33,8 @@ app.use('/api/images', imageRoutes);
 app.use('/api/consultations', consultationRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/admin/consultations', adminConsultationRoutes);
+app.use('/api/passers', passerRoutes);
+app.use('/api/admin/passers', adminPasserRoutes);
 
 // Health check
 app.get('/health', (req: Request, res: Response) => {
