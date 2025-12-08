@@ -8,6 +8,8 @@ import authRoutes from './routes/authRoutes';
 import adminConsultationRoutes from './routes/adminConsultationRoutes';
 import passerRoutes from './routes/passerRoutes';
 import adminPasserRoutes from './routes/adminPasserRoutes';
+import noticeRoutes from './routes/noticeRoutes';
+import adminNoticeRoutes from './routes/adminNoticeRoutes';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -35,6 +37,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin/consultations', adminConsultationRoutes);
 app.use('/api/passers', passerRoutes);
 app.use('/api/admin/passers', adminPasserRoutes);
+app.use('/api/notices', noticeRoutes);
+app.use('/api/admin/notices', adminNoticeRoutes);
 
 // Health check
 app.get('/health', (req: Request, res: Response) => {

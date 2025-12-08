@@ -7,7 +7,7 @@ const router = Router();
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB
+    fileSize: 50 * 1024 * 1024, // 50MB
   },
   fileFilter: (req, file, cb) => {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
@@ -19,8 +19,21 @@ const upload = multer({
   },
 });
 
+// Multer 에러 핸들링 미들웨어
+const handleMulterError = (err: any, req: Request, res: Response, next: Function) => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(413).json({ error: '파일 크기가 너무 큽니다. 최대 50MB까지 업로드 가능합니다.' });
+    }
+    return res.status(400).json({ error: err.message });
+  } else if (err) {
+    return res.status(400).json({ error: err.message });
+  }
+  next();
+};
+
 // 이미지 업로드
-router.post('/upload', upload.single('image'), async (req: Request, res: Response) => {
+router.post('/upload', upload.single('image'), handleMulterError, async (req: Request, res: Response) => {
   try {
     if (!req.file) {
       res.status(400).json({ error: 'No file uploaded' });
@@ -41,7 +54,7 @@ router.post('/upload', upload.single('image'), async (req: Request, res: Respons
 });
 
 // 여러 이미지 업로드
-router.post('/upload-multiple', upload.array('images', 10), async (req: Request, res: Response) => {
+router.post('/upload-multiple', upload.array('images', 10), handleMulterError, async (req: Request, res: Response) => {
   try {
     const files = req.files as Express.Multer.File[];
     if (!files || files.length === 0) {
