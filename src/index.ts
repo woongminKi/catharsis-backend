@@ -10,6 +10,8 @@ import passerRoutes from './routes/passerRoutes';
 import adminPasserRoutes from './routes/adminPasserRoutes';
 import noticeRoutes from './routes/noticeRoutes';
 import adminNoticeRoutes from './routes/adminNoticeRoutes';
+import contentRoutes from './routes/contentRoutes';
+import adminContentRoutes from './routes/adminContentRoutes';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -39,6 +41,8 @@ app.use('/api/passers', passerRoutes);
 app.use('/api/admin/passers', adminPasserRoutes);
 app.use('/api/notices', noticeRoutes);
 app.use('/api/admin/notices', adminNoticeRoutes);
+app.use('/api/content', contentRoutes);
+app.use('/api/admin/content', adminContentRoutes);
 
 // Health check
 app.get('/health', (req: Request, res: Response) => {
