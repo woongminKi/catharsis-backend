@@ -20,11 +20,26 @@ const PORT = process.env.PORT || 4000;
 connectDB();
 
 // CORS 설정
+const allowedOrigins = [
+  process.env.FRONTEND_URL || 'http://localhost:3000',
+  process.env.ADMIN_URL || 'http://localhost:5001',
+  'http://www.catharsisact.com',
+  'http://catharsisact.com',
+  'http://catharsisact-admin.com',
+  'http://www.catharsisact-admin.com',
+  'http://localhost:3000',
+  'http://localhost:5001',
+];
+
 app.use(cors({
-  origin: [
-    process.env.FRONTEND_URL || 'http://localhost:3000',
-    process.env.ADMIN_URL || 'http://localhost:5001',
-  ],
+  origin: (origin, callback) => {
+    // allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
 }));
 
