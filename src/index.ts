@@ -27,21 +27,27 @@ const allowedOrigins = [
   'http://catharsisact.com',
   'http://catharsisact-admin.com',
   'http://www.catharsisact-admin.com',
+  'https://www.catharsisact.com',
+  'https://catharsisact.com',
+  'https://catharsisact-admin.com',
+  'https://www.catharsisact-admin.com',
   'http://localhost:3000',
   'http://localhost:5001',
 ];
 
-app.use(cors({
-  origin: (origin, callback) => {
-    // allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-    return callback(new Error('Not allowed by CORS'));
-  },
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+  })
+);
 
 // Middleware
 app.use(express.json());
