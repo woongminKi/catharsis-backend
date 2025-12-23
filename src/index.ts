@@ -10,6 +10,8 @@ import passerRoutes from './routes/passerRoutes';
 import adminPasserRoutes from './routes/adminPasserRoutes';
 import noticeRoutes from './routes/noticeRoutes';
 import adminNoticeRoutes from './routes/adminNoticeRoutes';
+import resourceRoutes from './routes/resourceRoutes';
+import adminResourceRoutes from './routes/adminResourceRoutes';
 import contentRoutes from './routes/contentRoutes';
 import adminContentRoutes from './routes/adminContentRoutes';
 
@@ -62,6 +64,8 @@ app.use('/api/passers', passerRoutes);
 app.use('/api/admin/passers', adminPasserRoutes);
 app.use('/api/notices', noticeRoutes);
 app.use('/api/admin/notices', adminNoticeRoutes);
+app.use('/api/resources', resourceRoutes);
+app.use('/api/admin/resources', adminResourceRoutes);
 app.use('/api/content', contentRoutes);
 app.use('/api/admin/content', adminContentRoutes);
 
@@ -77,4 +81,5 @@ app.get('/', (req: Request, res: Response) => {
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  console.log('Routes loaded: resources, admin/resources');
 });
