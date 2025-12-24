@@ -14,6 +14,8 @@ import resourceRoutes from './routes/resourceRoutes';
 import adminResourceRoutes from './routes/adminResourceRoutes';
 import contentRoutes from './routes/contentRoutes';
 import adminContentRoutes from './routes/adminContentRoutes';
+import galleryRoutes from './routes/galleryRoutes';
+import adminGalleryRoutes from './routes/adminGalleryRoutes';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -68,6 +70,8 @@ app.use('/api/resources', resourceRoutes);
 app.use('/api/admin/resources', adminResourceRoutes);
 app.use('/api/content', contentRoutes);
 app.use('/api/admin/content', adminContentRoutes);
+app.use('/api/galleries', galleryRoutes);
+app.use('/api/admin/galleries', adminGalleryRoutes);
 
 // Health check
 app.get('/health', (req: Request, res: Response) => {
@@ -81,5 +85,5 @@ app.get('/', (req: Request, res: Response) => {
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-  console.log('Routes loaded: resources, admin/resources');
+  console.log('Routes loaded: resources, admin/resources, galleries, admin/galleries');
 });
