@@ -170,4 +170,32 @@ router.put('/instagram-posts', async (req: AuthRequest, res: Response) => {
   }
 });
 
+// 역대 합격자 업데이트
+router.put('/history-passers', async (req: AuthRequest, res: Response) => {
+  try {
+    const { historyPassers } = req.body;
+
+    let content = await Content.findOne();
+    if (!content) {
+      content = new Content({});
+    }
+
+    content.historyPassers = historyPassers.map((item: any, index: number) => ({
+      ...item,
+      order: item.order ?? index,
+    }));
+
+    await content.save();
+
+    res.json({
+      success: true,
+      message: '역대 합격자가 업데이트되었습니다.',
+      data: content.historyPassers,
+    });
+  } catch (error) {
+    console.error('Error updating history passers:', error);
+    res.status(500).json({ success: false, message: '서버 오류가 발생했습니다.' });
+  }
+});
+
 export default router;

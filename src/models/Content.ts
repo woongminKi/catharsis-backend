@@ -44,12 +44,20 @@ export interface IInstagramPost {
   order: number;
 }
 
+// 역대 합격자
+export interface IHistoryPasser {
+  leftText: string;   // 학교 연도 (예: "한국예술종합학교 25학년도")
+  rightText: string;  // 이름 (예: "이찬민")
+  order: number;
+}
+
 export interface IContent extends Document {
   heroSection: IHeroSection;
   schoolPassers: ISchoolPasser[];
   youtubeVideos: IYoutubeVideo[];
   instructors: IInstructor[];
   instagramPosts: IInstagramPost[];
+  historyPassers: IHistoryPasser[];
   updatedAt: Date;
 }
 
@@ -92,6 +100,12 @@ const InstagramPostSchema = new Schema<IInstagramPost>({
   order: { type: Number, default: 0 },
 }, { _id: true });
 
+const HistoryPasserSchema = new Schema<IHistoryPasser>({
+  leftText: { type: String, required: true },
+  rightText: { type: String, required: true },
+  order: { type: Number, default: 0 },
+}, { _id: true });
+
 const ContentSchema = new Schema<IContent>(
   {
     heroSection: { type: HeroSectionSchema, default: () => ({}) },
@@ -99,6 +113,7 @@ const ContentSchema = new Schema<IContent>(
     youtubeVideos: { type: [YoutubeVideoSchema], default: [] },
     instructors: { type: [InstructorSchema], default: [] },
     instagramPosts: { type: [InstagramPostSchema], default: [] },
+    historyPassers: { type: [HistoryPasserSchema], default: [] },
   },
   {
     timestamps: true,
