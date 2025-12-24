@@ -30,7 +30,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 // 히어로 섹션 업데이트
 router.patch('/hero', async (req: AuthRequest, res: Response) => {
   try {
-    const { imageUrl, subtitle, title, buttonText, buttonLink } = req.body;
+    const { imageUrls, subtitle, title, buttonText, buttonLink } = req.body;
 
     let content = await Content.findOne();
     if (!content) {
@@ -38,7 +38,7 @@ router.patch('/hero', async (req: AuthRequest, res: Response) => {
     }
 
     content.heroSection = {
-      imageUrl: imageUrl ?? content.heroSection.imageUrl,
+      imageUrls: imageUrls ?? content.heroSection.imageUrls ?? [],
       subtitle: subtitle ?? content.heroSection.subtitle,
       title: title ?? content.heroSection.title,
       buttonText: buttonText ?? content.heroSection.buttonText,

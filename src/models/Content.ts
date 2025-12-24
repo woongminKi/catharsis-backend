@@ -2,7 +2,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 // 메인 히어로 섹션
 export interface IHeroSection {
-  imageUrl: string;
+  imageUrls: string[];
   subtitle: string;
   title: string;
   buttonText: string;
@@ -54,7 +54,7 @@ export interface IContent extends Document {
 }
 
 const HeroSectionSchema = new Schema<IHeroSection>({
-  imageUrl: { type: String, default: '' },
+  imageUrls: { type: [String], default: [] },
   subtitle: { type: String, default: 'MAKE YOUR STYLE' },
   title: { type: String, default: '입시를 스타일하다, 민액터스' },
   buttonText: { type: String, default: '2024 합격자 전체보기' },
