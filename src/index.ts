@@ -20,7 +20,6 @@ import adminGalleryRoutes from './routes/adminGalleryRoutes';
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// MongoDB 연결
 connectDB();
 
 // CORS 설정
@@ -85,5 +84,7 @@ app.get('/', (req: Request, res: Response) => {
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-  console.log('Routes loaded: resources, admin/resources, galleries, admin/galleries');
+  console.log(
+    'Routes loaded: resources, admin/resources, galleries, admin/galleries'
+  );
 });
