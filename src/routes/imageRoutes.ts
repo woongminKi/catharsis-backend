@@ -19,8 +19,38 @@ const upload = multer({
   },
 });
 
-// Multer 에러 핸들링 미들웨어
+// CORS 허용 origin 목록 (index.ts와 동일하게 유지)
+const allowedOrigins = [
+  process.env.FRONTEND_URL || 'http://localhost:3000',
+  process.env.ADMIN_URL || 'http://localhost:5001',
+  'http://www.catharsisact.com',
+  'http://catharsisact.com',
+  'http://catharsisact-admin.com',
+  'http://www.catharsisact-admin.com',
+  'https://www.catharsisact.com',
+  'https://catharsisact.com',
+  'https://catharsisact-admin.com',
+  'https://www.catharsisact-admin.com',
+  'http://localhost:3000',
+  'http://localhost:5001',
+];
+
+// CORS 헤더 설정 헬퍼 함수
+const setCorsHeaders = (req: Request, res: Response) => {
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  }
+};
+
+// Multer 에러 핸들링 미들웨어 - CORS 헤더 포함
 const handleMulterError = (err: any, req: Request, res: Response, next: Function) => {
+  // 에러 발생 시에도 CORS 헤더 설정
+  setCorsHeaders(req, res);
+
   if (err instanceof multer.MulterError) {
     if (err.code === 'LIMIT_FILE_SIZE') {
       return res.status(413).json({ error: '파일 크기가 너무 큽니다. 최대 50MB까지 업로드 가능합니다.' });
