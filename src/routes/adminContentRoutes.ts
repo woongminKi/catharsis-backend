@@ -10,15 +10,14 @@ router.use(authMiddleware);
 // 콘텐츠 조회
 router.get('/', async (req: AuthRequest, res: Response) => {
   try {
-    let content = await Content.findOne();
+    // .lean()으로 MongoDB 원본 데이터 조회 (스키마 변환 없이)
+    let contentObj = await Content.findOne().lean() as any;
 
-    if (!content) {
-      content = new Content({});
-      await content.save();
+    if (!contentObj) {
+      const newContent = new Content({});
+      await newContent.save();
+      contentObj = await Content.findOne().lean() as any;
     }
-
-    // 데이터 정규화 - 모든 필드가 올바른 기본값을 갖도록 보장
-    const contentObj = content.toObject() as any;
 
     // imageUrl (단수) 또는 imageUrls (복수) 둘 다 처리
     // 기존 DB에 imageUrl로 저장된 경우를 위한 마이그레이션 처리
@@ -61,14 +60,16 @@ router.patch('/hero', async (req: AuthRequest, res: Response) => {
   try {
     const { imageUrls, subtitle, title, buttonText, buttonLink } = req.body;
 
+    // 기존 Content 조회 (없으면 생성)
     let content = await Content.findOne();
     if (!content) {
       content = new Content({});
-      await content.save(); // 새 Content 먼저 저장하여 기본값 초기화
+      await content.save();
     }
 
-    // heroSection이 undefined일 수 있으므로 안전하게 접근
-    const existingHeroObj = (content.heroSection as any) || {};
+    // 기존 heroSection 데이터를 MongoDB에서 직접 조회 (스키마 무시)
+    const rawContent = await Content.findOne().lean();
+    const existingHeroObj = (rawContent?.heroSection as any) || {};
 
     // 기존 imageUrl (단수)이 있으면 imageUrls로 마이그레이션
     let existingImageUrls: string[] = [];
@@ -78,29 +79,45 @@ router.patch('/hero', async (req: AuthRequest, res: Response) => {
       existingImageUrls = [existingHeroObj.imageUrl];
     }
 
-    // 새 heroSection 설정 (imageUrl 필드 제거, imageUrls만 사용)
-    content.heroSection = {
-      imageUrls: imageUrls ?? existingImageUrls,
-      subtitle: subtitle ?? existingHeroObj.subtitle ?? '',
-      title: title ?? existingHeroObj.title ?? '',
-      buttonText: buttonText ?? existingHeroObj.buttonText ?? '',
-      buttonLink: buttonLink ?? existingHeroObj.buttonLink ?? '',
+    // 새 heroSection 값 계산
+    const newImageUrls = imageUrls ?? existingImageUrls;
+    const newSubtitle = subtitle ?? existingHeroObj.subtitle ?? '';
+    const newTitle = title ?? existingHeroObj.title ?? '';
+    const newButtonText = buttonText ?? existingHeroObj.buttonText ?? '';
+    const newButtonLink = buttonLink ?? existingHeroObj.buttonLink ?? '';
+
+    // findOneAndUpdate로 원자적 업데이트 (데이터 일관성 보장)
+    const updateOperation: any = {
+      $set: {
+        'heroSection.imageUrls': newImageUrls,
+        'heroSection.subtitle': newSubtitle,
+        'heroSection.title': newTitle,
+        'heroSection.buttonText': newButtonText,
+        'heroSection.buttonLink': newButtonLink,
+      },
     };
 
-    // 기존 imageUrl 필드가 있으면 제거 (MongoDB에서 직접 제거)
+    // 기존 imageUrl 필드가 있으면 제거
     if (existingHeroObj.imageUrl !== undefined) {
-      await Content.updateOne(
-        { _id: content._id },
-        { $unset: { 'heroSection.imageUrl': 1 } }
-      );
+      updateOperation.$unset = { 'heroSection.imageUrl': 1 };
     }
 
-    await content.save();
+    const updatedContent = await Content.findOneAndUpdate(
+      { _id: content._id },
+      updateOperation,
+      { new: true }
+    );
 
     res.json({
       success: true,
       message: '히어로 섹션이 업데이트되었습니다.',
-      data: content.heroSection,
+      data: {
+        imageUrls: newImageUrls,
+        subtitle: newSubtitle,
+        title: newTitle,
+        buttonText: newButtonText,
+        buttonLink: newButtonLink,
+      },
     });
   } catch (error) {
     console.error('Error updating hero section:', error);

@@ -6,16 +6,15 @@ const router = Router();
 // 홈페이지 콘텐츠 조회 (공개)
 router.get('/', async (req: Request, res: Response) => {
   try {
-    let content = await Content.findOne();
+    // .lean()으로 MongoDB 원본 데이터 조회 (스키마 변환 없이)
+    let contentObj = await Content.findOne().lean() as any;
 
     // 콘텐츠가 없으면 기본값 생성
-    if (!content) {
-      content = new Content({});
-      await content.save();
+    if (!contentObj) {
+      const newContent = new Content({});
+      await newContent.save();
+      contentObj = await Content.findOne().lean() as any;
     }
-
-    // 데이터 정규화 - heroSection.imageUrls가 항상 배열이도록 보장
-    const contentObj = content.toObject() as any;
 
     // imageUrl (단수) 또는 imageUrls (복수) 둘 다 처리
     // 기존 DB에 imageUrl로 저장된 경우를 위한 마이그레이션 처리
