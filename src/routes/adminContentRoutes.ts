@@ -56,7 +56,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
 });
 
 // 히어로 섹션 업데이트 (다른 탭들과 동일한 패턴으로 단순화)
-router.put('/hero', async (req: AuthRequest, res: Response) => {
+router.patch('/hero', async (req: AuthRequest, res: Response) => {
   try {
     const { imageUrls, subtitle, title, buttonText, buttonLink } = req.body;
 
