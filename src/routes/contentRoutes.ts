@@ -14,9 +14,27 @@ router.get('/', async (req: Request, res: Response) => {
       await content.save();
     }
 
+    // 데이터 정규화 - heroSection.imageUrls가 항상 배열이도록 보장
+    const contentObj = content.toObject();
+    const normalizedData = {
+      ...contentObj,
+      heroSection: {
+        imageUrls: contentObj.heroSection?.imageUrls || [],
+        subtitle: contentObj.heroSection?.subtitle || '',
+        title: contentObj.heroSection?.title || '',
+        buttonText: contentObj.heroSection?.buttonText || '',
+        buttonLink: contentObj.heroSection?.buttonLink || '',
+      },
+      schoolPassers: contentObj.schoolPassers || [],
+      youtubeVideos: contentObj.youtubeVideos || [],
+      instructors: contentObj.instructors || [],
+      instagramPosts: contentObj.instagramPosts || [],
+      historyPassers: contentObj.historyPassers || [],
+    };
+
     res.json({
       success: true,
-      data: content,
+      data: normalizedData,
     });
   } catch (error) {
     console.error('Error fetching content:', error);

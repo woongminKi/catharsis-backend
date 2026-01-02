@@ -17,9 +17,27 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       await content.save();
     }
 
+    // 데이터 정규화 - 모든 필드가 올바른 기본값을 갖도록 보장
+    const contentObj = content.toObject();
+    const normalizedData = {
+      ...contentObj,
+      heroSection: {
+        imageUrls: contentObj.heroSection?.imageUrls || [],
+        subtitle: contentObj.heroSection?.subtitle || '',
+        title: contentObj.heroSection?.title || '',
+        buttonText: contentObj.heroSection?.buttonText || '',
+        buttonLink: contentObj.heroSection?.buttonLink || '',
+      },
+      schoolPassers: contentObj.schoolPassers || [],
+      youtubeVideos: contentObj.youtubeVideos || [],
+      instructors: contentObj.instructors || [],
+      instagramPosts: contentObj.instagramPosts || [],
+      historyPassers: contentObj.historyPassers || [],
+    };
+
     res.json({
       success: true,
-      data: content,
+      data: normalizedData,
     });
   } catch (error) {
     console.error('Error fetching content:', error);
@@ -35,14 +53,24 @@ router.patch('/hero', async (req: AuthRequest, res: Response) => {
     let content = await Content.findOne();
     if (!content) {
       content = new Content({});
+      await content.save(); // 새 Content 먼저 저장하여 기본값 초기화
     }
 
+    // heroSection이 undefined일 수 있으므로 안전하게 접근
+    const existingHero = content.heroSection || {
+      imageUrls: [],
+      subtitle: '',
+      title: '',
+      buttonText: '',
+      buttonLink: '',
+    };
+
     content.heroSection = {
-      imageUrls: imageUrls ?? content.heroSection.imageUrls ?? [],
-      subtitle: subtitle ?? content.heroSection.subtitle,
-      title: title ?? content.heroSection.title,
-      buttonText: buttonText ?? content.heroSection.buttonText,
-      buttonLink: buttonLink ?? content.heroSection.buttonLink,
+      imageUrls: imageUrls ?? existingHero.imageUrls ?? [],
+      subtitle: subtitle ?? existingHero.subtitle ?? '',
+      title: title ?? existingHero.title ?? '',
+      buttonText: buttonText ?? existingHero.buttonText ?? '',
+      buttonLink: buttonLink ?? existingHero.buttonLink ?? '',
     };
 
     await content.save();
