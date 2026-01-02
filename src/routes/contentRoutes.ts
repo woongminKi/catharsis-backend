@@ -15,11 +15,22 @@ router.get('/', async (req: Request, res: Response) => {
     }
 
     // 데이터 정규화 - heroSection.imageUrls가 항상 배열이도록 보장
-    const contentObj = content.toObject();
+    const contentObj = content.toObject() as any;
+
+    // imageUrl (단수) 또는 imageUrls (복수) 둘 다 처리
+    // 기존 DB에 imageUrl로 저장된 경우를 위한 마이그레이션 처리
+    let heroImageUrls: string[] = [];
+    if (contentObj.heroSection?.imageUrls && Array.isArray(contentObj.heroSection.imageUrls)) {
+      heroImageUrls = contentObj.heroSection.imageUrls;
+    } else if (contentObj.heroSection?.imageUrl && typeof contentObj.heroSection.imageUrl === 'string' && contentObj.heroSection.imageUrl.trim() !== '') {
+      // 단수 imageUrl이 있으면 배열로 변환
+      heroImageUrls = [contentObj.heroSection.imageUrl];
+    }
+
     const normalizedData = {
       ...contentObj,
       heroSection: {
-        imageUrls: contentObj.heroSection?.imageUrls || [],
+        imageUrls: heroImageUrls,
         subtitle: contentObj.heroSection?.subtitle || '',
         title: contentObj.heroSection?.title || '',
         buttonText: contentObj.heroSection?.buttonText || '',

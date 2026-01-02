@@ -18,11 +18,22 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     }
 
     // 데이터 정규화 - 모든 필드가 올바른 기본값을 갖도록 보장
-    const contentObj = content.toObject();
+    const contentObj = content.toObject() as any;
+
+    // imageUrl (단수) 또는 imageUrls (복수) 둘 다 처리
+    // 기존 DB에 imageUrl로 저장된 경우를 위한 마이그레이션 처리
+    let heroImageUrls: string[] = [];
+    if (contentObj.heroSection?.imageUrls && Array.isArray(contentObj.heroSection.imageUrls)) {
+      heroImageUrls = contentObj.heroSection.imageUrls;
+    } else if (contentObj.heroSection?.imageUrl && typeof contentObj.heroSection.imageUrl === 'string' && contentObj.heroSection.imageUrl.trim() !== '') {
+      // 단수 imageUrl이 있으면 배열로 변환
+      heroImageUrls = [contentObj.heroSection.imageUrl];
+    }
+
     const normalizedData = {
       ...contentObj,
       heroSection: {
-        imageUrls: contentObj.heroSection?.imageUrls || [],
+        imageUrls: heroImageUrls,
         subtitle: contentObj.heroSection?.subtitle || '',
         title: contentObj.heroSection?.title || '',
         buttonText: contentObj.heroSection?.buttonText || '',
@@ -57,21 +68,32 @@ router.patch('/hero', async (req: AuthRequest, res: Response) => {
     }
 
     // heroSection이 undefined일 수 있으므로 안전하게 접근
-    const existingHero = content.heroSection || {
-      imageUrls: [],
-      subtitle: '',
-      title: '',
-      buttonText: '',
-      buttonLink: '',
+    const existingHeroObj = (content.heroSection as any) || {};
+
+    // 기존 imageUrl (단수)이 있으면 imageUrls로 마이그레이션
+    let existingImageUrls: string[] = [];
+    if (existingHeroObj.imageUrls && Array.isArray(existingHeroObj.imageUrls)) {
+      existingImageUrls = existingHeroObj.imageUrls;
+    } else if (existingHeroObj.imageUrl && typeof existingHeroObj.imageUrl === 'string' && existingHeroObj.imageUrl.trim() !== '') {
+      existingImageUrls = [existingHeroObj.imageUrl];
+    }
+
+    // 새 heroSection 설정 (imageUrl 필드 제거, imageUrls만 사용)
+    content.heroSection = {
+      imageUrls: imageUrls ?? existingImageUrls,
+      subtitle: subtitle ?? existingHeroObj.subtitle ?? '',
+      title: title ?? existingHeroObj.title ?? '',
+      buttonText: buttonText ?? existingHeroObj.buttonText ?? '',
+      buttonLink: buttonLink ?? existingHeroObj.buttonLink ?? '',
     };
 
-    content.heroSection = {
-      imageUrls: imageUrls ?? existingHero.imageUrls ?? [],
-      subtitle: subtitle ?? existingHero.subtitle ?? '',
-      title: title ?? existingHero.title ?? '',
-      buttonText: buttonText ?? existingHero.buttonText ?? '',
-      buttonLink: buttonLink ?? existingHero.buttonLink ?? '',
-    };
+    // 기존 imageUrl 필드가 있으면 제거 (MongoDB에서 직접 제거)
+    if (existingHeroObj.imageUrl !== undefined) {
+      await Content.updateOne(
+        { _id: content._id },
+        { $unset: { 'heroSection.imageUrl': 1 } }
+      );
+    }
 
     await content.save();
 
