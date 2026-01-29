@@ -26,6 +26,11 @@ router.get('/', async (req: Request, res: Response) => {
       heroImageUrls = [contentObj.heroSection.imageUrl];
     }
 
+    // instructors를 order 기준으로 정렬
+    const sortedInstructors = (contentObj.instructors || []).sort(
+      (a: any, b: any) => (a.order ?? 0) - (b.order ?? 0)
+    );
+
     const normalizedData = {
       ...contentObj,
       heroSection: {
@@ -37,7 +42,7 @@ router.get('/', async (req: Request, res: Response) => {
       },
       schoolPassers: contentObj.schoolPassers || [],
       youtubeVideos: contentObj.youtubeVideos || [],
-      instructors: contentObj.instructors || [],
+      instructors: sortedInstructors,
       instagramPosts: contentObj.instagramPosts || [],
       historyPassers: contentObj.historyPassers || [],
     };
