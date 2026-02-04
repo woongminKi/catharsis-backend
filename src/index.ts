@@ -16,6 +16,8 @@ import contentRoutes from './routes/contentRoutes';
 import adminContentRoutes from './routes/adminContentRoutes';
 import galleryRoutes from './routes/galleryRoutes';
 import adminGalleryRoutes from './routes/adminGalleryRoutes';
+import instructorRoutes from './routes/instructorRoutes';
+import adminInstructorRoutes from './routes/adminInstructorRoutes';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -78,6 +80,8 @@ app.use('/api/content', contentRoutes);
 app.use('/api/admin/content', adminContentRoutes);
 app.use('/api/galleries', galleryRoutes);
 app.use('/api/admin/galleries', adminGalleryRoutes);
+app.use('/api/instructors', instructorRoutes);
+app.use('/api/admin/instructors', adminInstructorRoutes);
 
 // Health check
 app.get('/health', (req: Request, res: Response) => {
