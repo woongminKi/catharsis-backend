@@ -41,7 +41,10 @@ const allowedOrigins = [
 ];
 
 const corsOptions = {
-  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+  origin: (
+    origin: string | undefined,
+    callback: (err: Error | null, allow?: boolean) => void,
+  ) => {
     // allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin)) {
@@ -101,8 +104,14 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   if (origin && allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    res.setHeader(
+      'Access-Control-Allow-Methods',
+      'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+    );
+    res.setHeader(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization, X-Requested-With',
+    );
   }
 
   console.error('Global error handler:', err.message);
@@ -112,13 +121,12 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
     return res.status(403).json({ error: 'CORS policy: Origin not allowed' });
   }
 
-  // 일반 에러
   res.status(500).json({ error: err.message || 'Internal server error' });
 });
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(
-    'Routes loaded: resources, admin/resources, galleries, admin/galleries'
+    'Routes loaded: resources, admin/resources, galleries, admin/galleries',
   );
 });
