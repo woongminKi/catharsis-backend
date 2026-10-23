@@ -1,8 +1,12 @@
 import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import { uploadImage, listImages, deleteImage } from '../services/imageService';
+import { authMiddleware } from '../middleware/auth';
 
 const router = Router();
+
+// 모든 라우트에 인증 미들웨어 적용 (multer보다 먼저 실행되어 미인증 요청은 파일을 받기 전에 차단)
+router.use(authMiddleware);
 
 const upload = multer({
   storage: multer.memoryStorage(),
